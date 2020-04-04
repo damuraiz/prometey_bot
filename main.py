@@ -1,4 +1,3 @@
-import db.database as db
 import os.path
 import json
 
@@ -10,5 +9,3 @@ def get_config():
 
 if __name__ == '__main__':
     config = get_config()
-    database = db.Database(config['database'])
-    database.test()

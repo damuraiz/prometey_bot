@@ -17,8 +17,8 @@ depends_on = None
 
 
 def upgrade():
-    pass
+    op.add_column('contents', sa.Column('user_id', sa.Integer, sa.ForeignKey('users.id'), nullable=False))
 
 
 def downgrade():
-    pass
+    op.drop_column('contents', 'user_id')

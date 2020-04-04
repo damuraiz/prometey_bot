@@ -12,7 +12,7 @@ import json
 # access to the values within the .ini file in use.
 config = context.config
 
-with open(os.path.join("..", 'cfg', 'config.json')) as f:
+with open(os.path.join('cfg', 'config.json')) as f:
     custom_cfg = json.load(f)
     config.set_main_option('sqlalchemy.url', custom_cfg['database']['sqlalchemy.url'])
 

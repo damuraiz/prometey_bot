@@ -1,0 +1,9 @@
+{
+  "database": {
+    "sqlalchemy.url": "DB_URL",
+    "sqlalchemy.echo": "debug",
+    "sqlalchemy.echo_pool": "debug",
+    "sqlalchemy.pool_size": 10,
+    "sqlalchemy.max_overflow" : 0
+  }
+}
