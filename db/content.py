@@ -11,7 +11,8 @@ class Content(Base):
     status = Column(String(10))
     user_id = Column('user_id', Integer, ForeignKey('users.id'), nullable=False)
 
-    user = relationship('User')
+    user = relationship('User', foreign_keys=[user_id])
+    videos = relationship('Video', primaryjoin='Content.id == Video.content_id')
 
     def __init__(self, name, status):
         self.name = name
