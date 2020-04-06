@@ -50,9 +50,6 @@ class PrometeyService():
             pass #todo ошибка
 
 
-    def download_videos(self):
-        pass
-
     @Transactional
     def finish_video(self, user_id):
         user = self.session.query(User).filter(User.id == user_id).one()
@@ -71,6 +68,18 @@ class PrometeyService():
     @Transactional
     def set_video_status_downloaded(self, video):
         video.status = 'DOWNLOADED'
+
+
+    def get_content_to_encode(self):
+        content = self.session.query(Content).join(Video).\
+            filter(Content.status=="FINISHED").\
+            filter(Content.all_downloaded).first()
+        return content
+
+    @Transactional
+    def set_content_status(self, content, status):
+        content.status = status
+        return content
 
     def prepare_video(self):
         pass
