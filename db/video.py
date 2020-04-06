@@ -9,7 +9,7 @@ class Video(Base):
     id = Column(Integer, primary_key=True)
     url = Column(String(200), nullable=False)
     duration = Column(Integer)
-    status = Column(String(10))
+    status = Column(String(10), nullable=False, server_default='NEW')
 
     content_id = Column(Integer, ForeignKey('contents.id'), nullable=False)
 
