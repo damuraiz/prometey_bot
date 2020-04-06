@@ -62,7 +62,15 @@ class PrometeyService():
             user.current_content_id = None
             return content
 
+    def get_download_list(self):
+        videos = self.session.query(Video).join(Content).\
+            filter(Video.status == 'NEW').\
+            filter(Content.status == 'FINISHED')
+        return videos
 
+    @Transactional
+    def set_video_status_downloaded(self, video):
+        video.status = 'DOWNLOADED'
 
     def prepare_video(self):
         pass

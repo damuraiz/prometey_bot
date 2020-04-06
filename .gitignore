@@ -2,6 +2,7 @@
 test_insert.py
 cfg/config.json
 .idea/*
+temp/*
 *.temp.txt
 *.temp.json
 
