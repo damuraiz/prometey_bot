@@ -58,7 +58,7 @@ def change(update, context):
     service.change_current(user.id, int(context.args[0]))
     #todo проверка на права
     content = user.current_content
-    text = f'Контент ID:{content.id} c именем <b>{content.name}</b> - создан и установлен по умолчанию!'
+    text = f'Контент ID:{content.id} c именем <b>{content.name}</b> - установлен по умолчанию!'
     context.bot.send_message(
         chat_id=update.effective_chat.id,
         text=text,
