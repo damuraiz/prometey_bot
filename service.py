@@ -4,6 +4,8 @@ from db.video import Video
 
 from db.base import Session, engine, Base
 
+from urllib.parse import urlparse
+
 from core.transactional import Transactional
 
 class PrometeyService():
@@ -15,24 +17,52 @@ class PrometeyService():
     def register_user(self, telegram_user_id):
         user = User(telegram_user_id)
         self.session.add(user)
+        return user
 
+    def get_user(self, telegram_user_id):
+        user = self.session.query(User).filter(User.telegram_user_id == telegram_user_id).one_or_none()
+        return user
+
+    @Transactional
     def create_content(self, user_id, name):
         content = Content(name, 'DRAFT')
         content.user_id = user_id
         self.session.add(content)
+        self.session.flush()
+        user = self.session.query(User).filter(User.id == user_id).one()
+        user.current_content = content
+        return content
 
+    @Transactional
+    def change_current(self, user_id, new_content_id):
+        user = self.session.query(User).filter(User.id == user_id).one()
+        user.current_content_id=new_content_id
 
-    def change_video(self, user_id, chat_id, new_video_id):
-        pass
-
+    @Transactional
     def add_url(self, user_id, url):
-        pass
+        user = self.session.query(User).filter(User.id == user_id).one()
+        t = urlparse(url)
+        if user.current_content and user.current_content.status == 'DRAFT' and t.hostname == 'vm.tiktok.com':
+            video = Video(url)
+            user.current_content.videos.append(video)
+            return video
+        else:
+            pass #todo ошибка
+
 
     def download_videos(self):
         pass
 
-    def finish_video(self, user_id, chat_id, video_id):
-        pass
+    @Transactional
+    def finish_video(self, user_id):
+        user = self.session.query(User).filter(User.id == user_id).one()
+        content = user.current_content
+        if content:
+            content.status = 'FINISHED'
+            user.current_content_id = None
+            return content
+
+
 
     def prepare_video(self):
         pass
@@ -48,4 +78,7 @@ class PrometeyService():
 
 if __name__ == '__main__':
     service = PrometeyService()
-    service.register_user(1111)
+    print('-'*100)
+
+    content = service.create_content(14, 'test')
+    print(content)

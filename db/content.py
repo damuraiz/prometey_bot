@@ -17,3 +17,6 @@ class Content(Base):
     def __init__(self, name, status):
         self.name = name
         self.status = status
+
+    def __repr__(self):
+        return f"<Content(id='{self.id}', name='{self.name}', status='{self.status}')>"
