@@ -75,6 +75,17 @@ def finish(update, context):
         text=text,
         parse_mode=ParseMode.HTML)
 
+def info(update, context):
+    user = service.get_user(update.effective_user.id)
+    content = user.current_content
+    text = f'id: {content.id}:<b>{content.name}</b>\nВсего: {content.total_video_count},' \
+           f' скачано: {content.downloaded_video_count}, длительность: {content.total_duration}'
+    context.bot.send_message(
+        chat_id=update.effective_chat.id,
+        text=text,
+        parse_mode=ParseMode.HTML)
+
+
 def add_url(update, context):
     url = update.message.text
     user = service.get_user(update.effective_user.id)
@@ -114,6 +125,7 @@ def main():
     updater.dispatcher.add_handler(CommandHandler('my', my))
     updater.dispatcher.add_handler(CommandHandler('change', change))
     updater.dispatcher.add_handler(CommandHandler('finish', finish))
+    updater.dispatcher.add_handler(CommandHandler('info', info))
 
     updater.dispatcher.add_handler(MessageHandler(Filters.text, add_url))
 

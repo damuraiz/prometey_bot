@@ -21,6 +21,10 @@ class Content(Base):
         select([func.count(Video.id)]).where(Video.content_id == id).correlate_except(Video)
     )
 
+    total_duration = column_property(
+        select([func.sum(Video.duration)]).where(Video.content_id == id).correlate_except(Video)
+    )
+
     downloaded_video_count = column_property(
         select([func.count(Video.id)]).where(
             and_(
