@@ -19,6 +19,7 @@ class PrometeyService():
         self.session.add(user)
         return user
 
+    @Transactional
     def get_user(self, telegram_user_id):
         user = self.session.query(User).filter(User.telegram_user_id == telegram_user_id).one_or_none()
         return user
@@ -59,6 +60,7 @@ class PrometeyService():
             user.current_content_id = None
             return content
 
+    @Transactional
     def get_download_list(self):
         videos = self.session.query(Video).join(Content).\
             filter(Video.status == 'NEW').\
@@ -69,7 +71,7 @@ class PrometeyService():
     def set_video_status_downloaded(self, video):
         video.status = 'DOWNLOADED'
 
-
+    @Transactional
     def get_content_to_encode(self):
         content = self.session.query(Content).join(Video).\
             filter(Content.status=="FINISHED").\
