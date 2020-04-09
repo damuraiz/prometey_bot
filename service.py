@@ -63,8 +63,7 @@ class PrometeyService():
     @Transactional
     def get_download_list(self):
         videos = self.session.query(Video).join(Content).\
-            filter(Video.status == 'NEW').\
-            filter(Content.status == 'FINISHED')
+            filter(Video.status == 'NEW')
         return videos
 
     @Transactional
@@ -99,5 +98,6 @@ if __name__ == '__main__':
     service = PrometeyService()
     print('-'*100)
 
-    content = service.create_content(14, 'test')
-    print(content)
+    videos = service.get_download_list()
+    for video in videos:
+        print(video)
