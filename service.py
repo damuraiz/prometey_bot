@@ -63,7 +63,7 @@ class PrometeyService():
     @Transactional
     def get_download_list(self):
         videos = self.session.query(Video).join(Content).\
-            filter(Video.status == 'NEW')
+            filter(Video.status == 'NEW').limit(5)
         return videos
 
     @Transactional
