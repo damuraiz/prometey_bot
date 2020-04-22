@@ -78,6 +78,11 @@ class PrometeyService():
         return content
 
     @Transactional
+    def get_content_to_send(self):
+        content = self.session.query(Content).filter(Content.status=="READY").first()
+        return content
+
+    @Transactional
     def set_content_status(self, content, status):
         content.status = status
         return content
@@ -104,7 +109,7 @@ if __name__ == '__main__':
 
     print('-' * 100)
 
-    content = service.get_content_to_encode()
+    content = service.get_content_to_send()
     if content:
         print(content.name)
     else:

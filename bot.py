@@ -113,13 +113,20 @@ def error_callback(update, context):
             parse_mode=ParseMode.HTML)
 
 def callback_download(context: CallbackContext):
-    print('Скачиватель начал работу')
     daemon.download()
-    print('Скачиватель закончил работу')
 
 def callback_prepare(context: CallbackContext):
     daemon.prepare()
 
+def callback_send(context: CallbackContext):
+    content = service.get_content_to_send()
+    if content:
+        chat_id = content.user.telegram_user_id
+        directory = os.path.join(daemon.temp_dir, str(content.id))
+        file = directory + content.name + '-landscape.mp4'
+
+        context.bot.send_document(chat_id = chat_id, document= open(file, 'rb'))
+        service.set_content_status(content, 'SENT')
 
 def main():
     # Create the Updater and pass it your bot's token.
@@ -141,7 +148,9 @@ def main():
 
     updater.dispatcher.add_error_handler(error_callback)
 
-    updater.job_queue.run_repeating(callback_download, interval=60, first=10)
+    updater.job_queue.run_repeating(callback_download, interval=180, first=10)
+    updater.job_queue.run_repeating(callback_send, interval=300, first=15)
+    updater.job_queue.run_repeating(callback_prepare, interval=3600, first=20)
 
 
     # Start the Bot
