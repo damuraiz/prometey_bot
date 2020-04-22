@@ -71,8 +71,10 @@ def finish(update, context):
     user = service.get_user(update.effective_user.id)
     #todo проверка на права
     content = service.finish_video(user.id)
-
-    text = f'Контент id:{content.id} - <b>{content.name}</b> - переведен в статус {content.status}'
+    if content:
+        text = f'Контент id:{content.id} - <b>{content.name}</b> - переведен в статус {content.status}'
+    else:
+        text = 'Нет активного контента'
     context.bot.send_message(
         chat_id=update.effective_chat.id,
         text=text,
