@@ -2,6 +2,7 @@
 import json
 import os
 import sys
+import time
 
 from core.encoder import PrometeyEncoder
 
@@ -24,7 +25,11 @@ class ContentPreparer():
         print(portrait_name)
         print(landscape_name)
         print(files)
+        print('Занимаюсь склейкой')
         self.__encoder.concat_clips(files, portrait_name)
+        print("Жду 60 сек")
+        time.sleep(60)
+        print('Финальная обработка')
         self.__encoder.landscape_video(portrait_name, landscape_name)
         print(f'Контент собран {self.__content_id}:{self.__content_name}')
 
