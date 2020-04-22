@@ -21,6 +21,17 @@ class PrometeyDownloader:
         with open(os.path.join(directory, name), 'wb') as f:
             f.write(video)
 
+    def download_video(self, url):
+        page = self.http.urlopen("GET", url)
+        parser = re.compile("contentUrl\":\"(.*?)\"")
+        data = str(page.data)
+        links = parser.findall(data)
+        if len(links) > 0:
+            return self.http.urlopen("GET", links[0]).data
+
+
+
+
     def __prepare_directory(self, directory):
         if not os.path.exists(directory):
             os.mkdir(directory)
