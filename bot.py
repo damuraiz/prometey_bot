@@ -81,8 +81,11 @@ def finish(update, context):
 def info(update, context):
     user = service.get_user(update.effective_user.id)
     content = user.current_content
-    text = f'id: {content.id}:<b>{content.name}</b>\nВсего: {content.total_video_count},' \
+    if content:
+        text = f'id: {content.id}:<b>{content.name}</b>\nВсего: {content.total_video_count},' \
            f' скачано: {content.downloaded_video_count}, длительность: {content.total_duration}'
+    else:
+        text = 'Нет активного контента'
     context.bot.send_message(
         chat_id=update.effective_chat.id,
         text=text,
