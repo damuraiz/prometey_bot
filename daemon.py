@@ -59,7 +59,8 @@ class PrometeyDaemon():
             print('Стартую инстанс')
             instance.start()
             instance.wait_until_running()
-            time.sleep(5)
+            print('Жду дополнительные 60 секунд')
+            time.sleep(60)
             print('Инстанс стартовал')
 
             command = f'cd prometey_bot && s3fs prometey temp && ' \
