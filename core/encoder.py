@@ -19,9 +19,9 @@ class PrometeyEncoder:
         clips = [VideoFileClip(file).fx(vfx.resize, (720, 1280)) for file in files]
         final_clip = concatenate_videoclips(clips)
         final_clip.write_videofile(name, audio_codec='aac', temp_audiofile=f'{name}-audio.m4a', remove_temp=True)
-        final_clip.close()
-        for clip in clips:
-            clip.close()
+        # final_clip.close()
+        # for clip in clips:
+        #     clip.close()
 
     def landscape_video(self, portrait_path, landscape_path):
         clip = VideoFileClip(portrait_path)
@@ -54,11 +54,11 @@ class PrometeyEncoder:
                                    audio_codec='aac',
                                    temp_audiofile=f'final-audio.m4a',
                                    remove_temp=True)
-        back.close()
-        front.close()
-        for clip in clips:
-            clip.close()
-        final_clip.close()
+        # back.close()
+        # front.close()
+        # for clip in clips:
+        #     clip.close()
+        # final_clip.close()
 
 if __name__ == "__main__":
     print("Test")
