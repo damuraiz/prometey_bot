@@ -2,14 +2,17 @@ import logging
 
 import os
 import json
+import time
 
 from telegram import ParseMode
-from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
+from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackContext
 from telegram.error import TelegramError
 
 from service import PrometeyService
+from daemon import PrometeyDaemon
 
 service = PrometeyService()
+daemon = PrometeyDaemon()
 
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
                     level=logging.INFO)
@@ -109,6 +112,13 @@ def error_callback(update, context):
             text='Что-то пошло не так!',
             parse_mode=ParseMode.HTML)
 
+def callback_download(context: CallbackContext):
+    print('Скачиватель начал работу')
+    daemon.download()
+    print('Скачиватель закончил работу')
+
+def callback_prepare(context: CallbackContext):
+    pass
 
 
 def main():
@@ -130,6 +140,8 @@ def main():
     updater.dispatcher.add_handler(MessageHandler(Filters.text, add_url))
 
     updater.dispatcher.add_error_handler(error_callback)
+
+    updater.job_queue.run_repeating(callback_download, interval=60, first=10)
 
 
     # Start the Bot

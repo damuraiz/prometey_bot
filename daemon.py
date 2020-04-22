@@ -1,12 +1,15 @@
 import os
 import sys
 import json
+import boto3
+import paramiko
+import time
+
 
 from service import PrometeyService
 from core.downloader import PrometeyDownloader
 from core.encoder import PrometeyEncoder
 
-import logging
 
 class PrometeyDaemon():
 
@@ -36,27 +39,47 @@ class PrometeyDaemon():
     def download(self):
         download_list = self.__service.get_download_list()
         for video in download_list:
-            logging.info(f'Скачиваю {video.url}')
+            print(f'Скачиваю {video.url}')
             self.__download_video(video)
 
 
     def prepare(self):
         content = self.__service.get_content_to_encode()
         if content:
-            logging.info(f'Начинаю собирать контент {content.id}:{content.name}')
-            content = self.__service.set_content_status(content, 'PROCESSING')
-            directory = os.path.join(self.temp_dir, str(content.id))
-            portrait_name = directory + content.name + '-portrait.mp4'
-            landscape_name = directory + content.name + '-landscape.mp4'
-            files = [os.path.join(directory, f) for f in sorted(os.listdir(directory))
-                     if os.path.isfile(os.path.join(directory, f)) and f.find(".mp4") != -1]
-            print(portrait_name)
-            print(landscape_name)
-            print(files)
-            self.__encoder.concat_clips(files, portrait_name)
-            self.__encoder.landscape_video(portrait_name, landscape_name)
-            logging.info(f'Контент собран {content.id}:{content.name}')
-            self.__service.set_content_status(content, 'READY')
+            print(f'Начинаю собирать контент {content.id}:{content.name}')
+            #content = self.__service.set_content_status(content, 'PROCESSING')
+            instance_id = "i-065f4b4ffb3b42d3c"
+            ec2 = boto3.resource('ec2')
+            instance = ec2.Instance(self.__encoder.config['instance_id'])
+
+            key = paramiko.RSAKey.from_private_key_file(self.__encoder.config['instance_access_key_path'])
+            client = paramiko.SSHClient()
+            client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+
+            print('Стартую инстанс')
+            instance.start()
+            instance.wait_until_running()
+            time.sleep(5)
+            print('Инстанс стартовал')
+
+            command = f'cd prometey_bot && s3fs prometey temp && python3 preparer.py  >> temp/last.log'
+            try:
+                client.connect(hostname=instance.public_ip_address, username='ubuntu', pkey=key)
+                print('Запускую скрипт')
+                client.exec_command(command)
+                print('Скрипт отработал')
+                client.close()
+            except Exception as e:
+                print(e)
+
+            print('Жду дополнительные 60 секунд')
+            time.sleep(60)
+            print('Останавливаю инстанс')
+            instance.stop()
+            instance.wait_until_stopped()
+            print('Инстанс остановлен')
+
+            #self.__service.set_content_status(content, 'READY')
 
 
 if __name__ == '__main__':

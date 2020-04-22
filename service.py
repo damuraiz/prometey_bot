@@ -100,4 +100,12 @@ if __name__ == '__main__':
 
     videos = service.get_download_list()
     for video in videos:
-        print(video)
+        print(video.id)
+
+    print('-' * 100)
+
+    content = service.get_content_to_encode()
+    if content:
+        print(content.name)
+    else:
+        print('nothing')
