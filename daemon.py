@@ -47,7 +47,7 @@ class PrometeyDaemon():
         content = self.__service.get_content_to_encode()
         if content:
             print(f'Начинаю собирать контент {content.id}:{content.name}')
-            #content = self.__service.set_content_status(content, 'PROCESSING')
+            content = self.__service.set_content_status(content, 'PROCESSING')
             instance_id = "i-065f4b4ffb3b42d3c"
             ec2 = boto3.resource('ec2')
             instance = ec2.Instance(self.__encoder.config['instance_id'])
@@ -62,12 +62,14 @@ class PrometeyDaemon():
             time.sleep(5)
             print('Инстанс стартовал')
 
-            command = f'cd prometey_bot && s3fs prometey temp && python3 preparer.py  >> temp/last.log'
+            command = f'cd prometey_bot && s3fs prometey temp && ' \
+                      f'python3 preparer.py {content.id} {content.name} >> temp/last.log'
             try:
                 client.connect(hostname=instance.public_ip_address, username='ubuntu', pkey=key)
                 print('Запускую скрипт')
-                client.exec_command(command)
-                print('Скрипт отработал')
+                stdin, stdout, stderr = client.exec_command(command, timeout=None)
+                exit_status = stdout.channel.recv_exit_status()
+                print(f'Скрипт отработал {exit_status}')
                 client.close()
             except Exception as e:
                 print(e)
@@ -79,7 +81,7 @@ class PrometeyDaemon():
             instance.wait_until_stopped()
             print('Инстанс остановлен')
 
-            #self.__service.set_content_status(content, 'READY')
+            self.__service.set_content_status(content, 'READY')
 
 
 if __name__ == '__main__':

@@ -118,7 +118,7 @@ def callback_download(context: CallbackContext):
     print('Скачиватель закончил работу')
 
 def callback_prepare(context: CallbackContext):
-    pass
+    daemon.prepare()
 
 
 def main():
