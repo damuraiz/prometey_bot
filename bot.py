@@ -129,9 +129,11 @@ def callback_send(context: CallbackContext):
         chat_id = content.user.telegram_user_id
         directory = os.path.join(daemon.temp_dir, str(content.id))
         file = directory + content.name + '-landscape.mp4'
-
-        context.bot.send_document(chat_id = chat_id, document= open(file, 'rb'))
-        service.set_content_status(content, 'SENT')
+        try:
+            context.bot.send_document(chat_id = chat_id, document= open(file, 'rb'))
+            service.set_content_status(content, 'SENT')
+        except:
+            print(f"Проблемы с файлом {file}")
 
 def main():
     # Create the Updater and pass it your bot's token.
