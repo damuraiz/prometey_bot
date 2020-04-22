@@ -21,23 +21,6 @@ class ContentPreparer():
         self.__content_name = content_name
         self.__temp_dir = config['temp_dir']
 
-    def test(self):
-        s3 = boto3.resource("s3",
-                            aws_access_key_id='AKIAXDNR6R3OJOF4M6CH',
-                            aws_secret_access_key='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')
-        bucket = s3.Bucket("prometey")
-        dir = os.path.join(self.__temp_dir, str(self.__content_id))
-        if not os.path.exists(dir):
-            os.makedirs(dir)
-        for obj in bucket.objects.filter(Prefix=f'{20}/'):
-            print(obj.key)
-        # os.mkdir(os.path.join())
-        # content_id = 25
-        # for obj in bucket.objects.filter(Prefix=f'{content_id}/24'):
-        #     print(obj.key)
-        #     with open('test24.mp4', 'wb') as f:
-        #         f.write(obj.get()['Body'].read())
-
 
     def run(self):
         print(f'Начинаю собирать контент {self.__content_id}:{self.__content_name}')
