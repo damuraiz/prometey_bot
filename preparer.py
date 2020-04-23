@@ -31,22 +31,6 @@ class ContentPreparer():
         self.__compile_files()
         self.__upload_files()
         self.__clean_files()
-        # print(f'Начинаю собирать контент {self.__content_id}:{self.__content_name}')
-        # directory = os.path.join(self.__temp_dir, str(self.__content_id))
-        # portrait_name = directory + self.__content_name + '-portrait.mp4'
-        # landscape_name = directory + self.__content_name + '-landscape.mp4'
-        # files = [os.path.join(directory, f) for f in sorted(os.listdir(directory))
-        #          if os.path.isfile(os.path.join(directory, f)) and f.find(".mp4") != -1]
-        # print(portrait_name)
-        # print(landscape_name)
-        # print(files)
-        # print('Занимаюсь склейкой')
-        # self.__encoder.concat_clips(files, portrait_name)
-        # print("Жду 60 сек")
-        # time.sleep(60)
-        # print('Финальная обработка')
-        # self.__encoder.landscape_video(portrait_name, landscape_name)
-        # print(f'Контент собран {self.__content_id}:{self.__content_name}')
 
     def __download_files(self):
         print(f'Начинаю собирать контент {self.__content_id}:{self.__content_name}')
