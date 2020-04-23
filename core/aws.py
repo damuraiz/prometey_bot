@@ -23,7 +23,6 @@ class PrometeyAmazon():
             yield name, obj.get()['Body'].read()
 
     def file(self, file):
-        bucket = self.__s3.Bucket(self.__config['aws_bucket'])
-        objects = bucket.objects.filter(Prefix=file)
-        return objects[0].get()['Body'].read()
+        object = self.__s3.Object(self.__config['aws_bucket'], file)
+        return object.get()['Body'].read()
 
