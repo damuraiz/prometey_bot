@@ -25,5 +25,5 @@ class PrometeyAmazon():
     def file(self, file):
         bucket = self.__s3.Bucket(self.__config['aws_bucket'])
         objects = bucket.objects.filter(Prefix=file)
-        if len(objects) > 1:
-            return objects[0].get()['Body'].read()
+        return objects[0].get()['Body'].read()
+
