@@ -10,11 +10,9 @@ from telegram.error import TelegramError
 
 from service import PrometeyService
 from daemon import PrometeyDaemon
-from core.aws import PrometeyAmazon
 
 service = PrometeyService()
 daemon = PrometeyDaemon()
-#amazon = PrometeyAmazon()
 
 
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -140,10 +138,13 @@ def callback_send(context: CallbackContext):
         directory = os.path.join(daemon.temp_dir, str(content.id))
         file = directory + content.name + '-landscape.mp4'
         try:
+            daemon.prepare_to_send(file)
             context.bot.send_document(chat_id=chat_id, document=open(file, 'rb'))
             service.set_content_status(content, 'SENT')
+            os.remove(file)
         except:
             print(f"Проблемы с файлом {file}")
+            context.bot.send_message(chat_id=chat_id, text=f"Проблемы с файлом {file}")
 
 
 def main():
@@ -167,7 +168,7 @@ def main():
     updater.dispatcher.add_error_handler(error_callback)
 
     updater.job_queue.run_repeating(callback_download, interval=180, first=10)
-    # updater.job_queue.run_repeating(callback_send, interval=300, first=15)
+    updater.job_queue.run_repeating(callback_send, interval=300, first=15)
     updater.job_queue.run_repeating(callback_prepare, interval=3600, first=20)
 
     # Start the Bot

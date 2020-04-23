@@ -9,6 +9,7 @@ import time
 from service import PrometeyService
 from core.downloader import PrometeyDownloader
 from core.encoder import PrometeyEncoder
+from core.aws import PrometeyAmazon
 
 
 class PrometeyDaemon():
@@ -23,6 +24,7 @@ class PrometeyDaemon():
         self.__check_dir(self.temp_dir)
 
         self.__encoder = PrometeyEncoder(config['encoder'])
+        self.__amazon = PrometeyAmazon(config['aws'])
 
     def __check_dir(self, dir):
         if not os.path.exists(dir):
@@ -42,7 +44,11 @@ class PrometeyDaemon():
             print(f'Скачиваю {video.url}')
             self.__download_video(video)
 
+    def prepare_to_send(self, file):
+        with open(file, 'wb') as f:
+            f.write(self.__amazon.file(file))
 
+    #todo прибраться и перенести в aws.py
     def prepare(self):
         content = self.__service.get_content_to_encode()
         if content:
@@ -76,8 +82,6 @@ class PrometeyDaemon():
             except Exception as e:
                 print(e)
 
-            print('Жду дополнительные 60 секунд')
-            time.sleep(60)
             print('Останавливаю инстанс')
             instance.stop()
             instance.wait_until_stopped()
