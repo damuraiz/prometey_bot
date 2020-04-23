@@ -14,7 +14,7 @@ from core.aws import PrometeyAmazon
 
 service = PrometeyService()
 daemon = PrometeyDaemon()
-amazon = PrometeyAmazon()
+#amazon = PrometeyAmazon()
 
 
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
