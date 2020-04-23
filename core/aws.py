@@ -21,3 +21,11 @@ class PrometeyAmazon():
         for obj in bucket.objects.filter(Prefix = f"{content_id}/"):
             path, name = os.path.split(obj.key)
             yield name, obj.get()['Body'].read()
+
+    def file(self, file):
+        bucket = self.__s3.Bucket(self.__config['aws_bucket'])
+        objects = bucket.objects.filter(file)
+        if len(objects)>1:
+            return objects[0].get()['Body'].read()
+
+
