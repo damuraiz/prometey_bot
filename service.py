@@ -98,6 +98,7 @@ class PrometeyService():
         videos = self.get_download_list()
         for video in videos:
             self.__download_video(video)
+        return videos
 
     @Transactional
     def __download_video(self, video):

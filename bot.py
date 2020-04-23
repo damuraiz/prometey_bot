@@ -118,7 +118,8 @@ def error_callback(update, context):
             parse_mode=ParseMode.HTML)
 
 def callback_download(context: CallbackContext):
-    daemon.download()
+    videos = service.download_videos()
+
 
 def callback_prepare(context: CallbackContext):
     daemon.prepare()
