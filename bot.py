@@ -173,7 +173,8 @@ def main():
     updater.dispatcher.add_error_handler(error_callback)
 
     updater.job_queue.run_repeating(callback_download, interval=180, first=10)
-    updater.job_queue.run_repeating(callback_send, interval=300, first=15)
+    #todo надо поменять. Телега не пропускает файлы больше 50Мб
+    #updater.job_queue.run_repeating(callback_send, interval=300, first=15)
     updater.job_queue.run_repeating(callback_prepare, interval=3600, first=20)
 
     # Start the Bot
