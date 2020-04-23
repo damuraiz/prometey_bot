@@ -10,10 +10,13 @@ from telegram.error import TelegramError
 
 from service import PrometeyService
 from daemon import PrometeyDaemon
+from youtube import PrometeyYouTube
+from core.config import config
 
 service = PrometeyService()
 daemon = PrometeyDaemon()
 
+youtube = PrometeyYouTube()
 
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
                     level=logging.INFO)
@@ -111,6 +114,39 @@ def add_url(update, context):
     context.bot.send_message(chat_id=update.effective_chat.id, text=text)
 
 
+def auth_url(update, context):
+    if update.effective_user.id == int(config['admin_id']):
+        url = youtube.get_auth_url()
+        text = f'Авторизируйтесь по URL {url}'
+        context.bot.send_message(chat_id=update.effective_chat.id, text=text)
+
+
+def auth_code(update, context):
+    if update.effective_user.id == int(config['admin_id']):
+        try:
+            youtube.set_auth_code(context.args[0])
+            text = 'Принято'
+        except:
+            text = 'Что-то пошло не так'
+        context.bot.send_message(chat_id=update.effective_chat.id, text=text)
+
+
+def upload(update, context):
+    if update.effective_user.id == int(config['admin_id']):
+        try:
+            user = service.get_user(update.effective_user.id)
+            content = user.current_content
+            file = f'temp/{content.id}{content.name}-landscape.mp4'
+            daemon.prepare_to_send(file)
+            response = youtube.upload_file(file)
+            text = f'Файл {file} успешно загружен!\n {response}'
+            os.remove(file)
+        except Exception as e:
+            print(e)
+            text = 'Что-то пошло не так!'
+        context.bot.send_message(chat_id=update.effective_chat.id, text=text)
+
+
 def error_callback(update, context):
     # todo пока не работает
     try:
@@ -156,8 +192,8 @@ def main():
     # Create the Updater and pass it your bot's token.
     # Make sure to set use_context=True to use the new context based callbacks
     # Post version 12 this will no longer be necessary
-    with open(os.path.join('cfg', 'config.json')) as f:
-        config = json.load(f)
+    # with open(os.path.join('cfg', 'config.json')) as f:
+    #     config = json.load(f)
 
     updater = Updater(token=config['bot_token'], use_context=True)
 
@@ -167,14 +203,17 @@ def main():
     updater.dispatcher.add_handler(CommandHandler('change', change))
     updater.dispatcher.add_handler(CommandHandler('finish', finish))
     updater.dispatcher.add_handler(CommandHandler('info', info))
+    updater.dispatcher.add_handler(CommandHandler('auth', auth_url))
+    updater.dispatcher.add_handler(CommandHandler('code', auth_code))
+    updater.dispatcher.add_handler(CommandHandler('upload', upload))
 
     updater.dispatcher.add_handler(MessageHandler(Filters.text, add_url))
 
     updater.dispatcher.add_error_handler(error_callback)
 
     updater.job_queue.run_repeating(callback_download, interval=180, first=10)
-    #todo надо поменять. Телега не пропускает файлы больше 50Мб
-    #updater.job_queue.run_repeating(callback_send, interval=300, first=15)
+    # todo надо поменять. Телега не пропускает файлы больше 50Мб
+    # updater.job_queue.run_repeating(callback_send, interval=300, first=15)
     updater.job_queue.run_repeating(callback_prepare, interval=3600, first=20)
 
     # Start the Bot
