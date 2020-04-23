@@ -72,7 +72,7 @@ class PrometeyDaemon():
                       f'python3 preparer.py {content.id} {content.name} >> last.log'
             try:
                 client.connect(hostname=instance.public_ip_address, username='ubuntu', pkey=key)
-                print('Запускую скрипт')
+                print('Запускаю скрипт')
                 stdin, stdout, stderr = client.exec_command(command, timeout=None)
                 exit_status = stdout.channel.recv_exit_status()
                 print(f'Скрипт отработал {exit_status}')

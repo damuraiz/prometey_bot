@@ -138,12 +138,17 @@ def callback_send(context: CallbackContext):
         directory = os.path.join(daemon.temp_dir, str(content.id))
         file = directory + content.name + '-landscape.mp4'
         try:
+            print(f'Готовлю файл {file}')
             daemon.prepare_to_send(file)
+            print(f'Отправляю файл {file}')
             context.bot.send_document(chat_id=chat_id, document=open(file, 'rb'))
+            print(f'Меняю статус файла {file}')
             service.set_content_status(content, 'SENT')
+            print(f'Удаляю файл {file}')
             os.remove(file)
-        except:
+        except Exception as e:
             print(f"Проблемы с файлом {file}")
+            print(e)
             context.bot.send_message(chat_id=chat_id, text=f"Проблемы с файлом {file}")
 
 
