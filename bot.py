@@ -143,7 +143,7 @@ def upload(update, context):
             os.remove(file)
         except Exception as e:
             print(e)
-            text = 'Что-то пошло не так!'
+            text = f'Что-то пошло не так!\n {type(e)}\n{e.args}\n{e}'
         context.bot.send_message(chat_id=update.effective_chat.id, text=text)
 
 
