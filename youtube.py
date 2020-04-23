@@ -43,8 +43,10 @@ class PrometeyYouTube():
         self.flow.fetch_token(code=code)
 
     def upload_file(self, path):
+        print('Готовимся отправить файл')
         youtube = googleapiclient.discovery.build(
              api_service_name, api_version, credentials=self.flow.credentials, cache_discovery=False)
+
         request = youtube.videos().insert(
             part="snippet,status",
             body={
@@ -60,7 +62,9 @@ class PrometeyYouTube():
             #       with a pointer to the actual file you are uploading.
             media_body=MediaFileUpload(path)
         )
+        print(f'Отправляем {path}')
         response = request.execute()
+        print(response)
         return response
 
 if __name__ == "__main__":
