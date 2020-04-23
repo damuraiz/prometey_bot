@@ -2,14 +2,14 @@
 import json
 import os
 import sys
-import time
+import shutil
 
-import boto3
 
 from core.config import config
 
 from core.encoder import PrometeyEncoder
 from core.aws import PrometeyAmazon
+
 
 
 class ContentPreparer():
@@ -20,34 +20,67 @@ class ContentPreparer():
         self.__content_id = content_id
         self.__content_name = content_name
         self.__temp_dir = config['temp_dir']
+        self.__directory = os.path.join(self.__temp_dir, str(self.__content_id))
+        self.__name_portrait = self.__directory + self.__content_name + '-portrait.mp4'
+        self.__name_landscape = self.__directory + self.__content_name + '-landscape.mp4'
+
 
 
     def run(self):
+        self.__download_files()
+        self.__compile_files()
+        self.__upload_files()
+        self.__clean_files()
+        # print(f'Начинаю собирать контент {self.__content_id}:{self.__content_name}')
+        # directory = os.path.join(self.__temp_dir, str(self.__content_id))
+        # portrait_name = directory + self.__content_name + '-portrait.mp4'
+        # landscape_name = directory + self.__content_name + '-landscape.mp4'
+        # files = [os.path.join(directory, f) for f in sorted(os.listdir(directory))
+        #          if os.path.isfile(os.path.join(directory, f)) and f.find(".mp4") != -1]
+        # print(portrait_name)
+        # print(landscape_name)
+        # print(files)
+        # print('Занимаюсь склейкой')
+        # self.__encoder.concat_clips(files, portrait_name)
+        # print("Жду 60 сек")
+        # time.sleep(60)
+        # print('Финальная обработка')
+        # self.__encoder.landscape_video(portrait_name, landscape_name)
+        # print(f'Контент собран {self.__content_id}:{self.__content_name}')
+
+    def __download_files(self):
         print(f'Начинаю собирать контент {self.__content_id}:{self.__content_name}')
-        directory = os.path.join(self.__temp_dir, str(self.__content_id))
-        portrait_name = directory + self.__content_name + '-portrait.mp4'
-        landscape_name = directory + self.__content_name + '-landscape.mp4'
-        files = [os.path.join(directory, f) for f in sorted(os.listdir(directory))
-                 if os.path.isfile(os.path.join(directory, f)) and f.find(".mp4") != -1]
-        print(portrait_name)
-        print(landscape_name)
+        os.makedirs(os.path.join(self.__temp_dir, str(self.__content_id)), exist_ok=True)
+        for name, body in self.__amazon.files(self.__content_id):
+            path = os.path.join(self.__temp_dir, str(self.__content_id), name)
+            with open(path, 'wb') as f:
+                print(f"Скачиваю {name}")
+                f.write(body)
+        print(f'Файлы скачаны для {self.__content_id}:{self.__content_name}')
+
+
+    def __compile_files(self):
+        files = [os.path.join(self.__directory, f) for f in sorted(os.listdir(self.__directory))
+                 if os.path.isfile(os.path.join(self.__directory, f)) and f.find(".mp4") != -1]
         print(files)
         print('Занимаюсь склейкой')
-        self.__encoder.concat_clips(files, portrait_name)
-        print("Жду 60 сек")
-        time.sleep(60)
+        self.__encoder.concat_clips(files, self.__name_portrait)
         print('Финальная обработка')
-        self.__encoder.landscape_video(portrait_name, landscape_name)
+        self.__encoder.landscape_video(self.__name_portrait, self.__name_landscape)
         print(f'Контент собран {self.__content_id}:{self.__content_name}')
 
-    def run2(self):
-        print(f'Начинаю собирать контент {self.__content_id}:{self.__content_name}')
-        os.makedirs(str(self.__content_id), exist_ok=True)
-        for name, body in self.__amazon.files(self.__content_id):
-            path = os.path.join(str(self.__content_id), name)
-            with open(path, 'wb') as f:
-                f.write(body)
-        
+
+    def __upload_files(self):
+        print(f'Закидываю результат {self.__name_landscape} на s3')
+        with open(self.__name_landscape, 'rb') as f:
+            self.__amazon.upload(self.__name_landscape, f.read())
+        print(f'Результат {self.__name_landscape} отправлен на s3')
+
+    def __clean_files(self):
+        print('Подчищаю временные файлы')
+        os.remove(self.__name_portrait)
+        os.remove(self.__name_landscape)
+        shutil.rmtree(self.__directory)
 
 
 
@@ -68,6 +101,6 @@ if __name__ == '__main__':
 
     preparer = ContentPreparer(config, int(sys.argv[1]), sys.argv[2])
 
-    preparer.run2()
+    preparer.run()
 
 
