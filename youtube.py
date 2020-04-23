@@ -44,7 +44,7 @@ class PrometeyYouTube():
 
     def upload_file(self, path):
         youtube = googleapiclient.discovery.build(
-             api_service_name, api_version, credentials=self.flow.credentials)
+             api_service_name, api_version, credentials=self.flow.credentials, cache_discovery=False)
         request = youtube.videos().insert(
             part="snippet,status",
             body={
